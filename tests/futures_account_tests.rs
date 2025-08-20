@@ -217,7 +217,7 @@ mod tests {
                 Matcher::Regex(r"closePosition=(?i:true)".into()),
                 Matcher::UrlEncoded("recvWindow".into(), "1234".into()),
                 Matcher::UrlEncoded("side".into(), "SELL".into()),
-                Matcher::Regex(r"stopPrice=7(?:\.4(?:0+)?)?".into()),
+                Matcher::UrlEncoded("stopPrice".into(), "7.4".into()),
                 Matcher::UrlEncoded("symbol".into(), "SRMUSDT".into()),
                 Matcher::Regex(r"timestamp=\d+".into()),
                 Matcher::UrlEncoded("type".into(), "STOP_MARKET".into()),
