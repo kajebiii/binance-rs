@@ -136,9 +136,20 @@ mod tests {
     #[test]
     fn stop_market_close_buy() {
         let mut server = Server::new();
-        let mock_stop_market_close_sell = server.mock("POST", "/fapi/v1/order")
+        let mock_stop_market_close_sell = server
+            .mock("POST", "/fapi/v1/order")
             .with_header("content-type", "application/json;charset=UTF-8")
-            .match_query(Matcher::Regex("closePosition=TRUE&recvWindow=1234&side=BUY&stopPrice=10.5&symbol=SRMUSDT&timestamp=\\d+&type=STOP_MARKET".into()))
+            // .match_query(Matcher::Regex("closePosition=TRUE&recvWindow=1234&side=BUY&stopPrice=10.5&symbol=SRMUSDT&timestamp=\\d+&type=STOP_MARKET&newClientOrderId=\\[A-Za-z0-9-]+".into()))
+            .match_query(Matcher::AllOf(vec![
+                Matcher::UrlEncoded("symbol".into(), "SRMUSDT".into()),
+                Matcher::UrlEncoded("side".into(), "BUY".into()),
+                Matcher::Regex(r"newClientOrderId=x-Cb7ytekJ[A-Za-z0-9]+".into()),
+                Matcher::UrlEncoded("type".into(), "STOP_MARKET".into()),
+                Matcher::Regex(r"timestamp=\d+".into()),
+                Matcher::Regex(r"stopPrice=10.5".into()),
+                Matcher::Regex(r"closePosition=TRUE".into()),
+                Matcher::UrlEncoded("recvWindow".into(), "1234".into()),
+            ]))
             .with_body_from_file("tests/mocks/futures/account/stop_market_close_position_buy.json")
             .create();
 
@@ -161,9 +172,20 @@ mod tests {
     #[test]
     fn stop_market_close_sell() {
         let mut server = Server::new();
-        let mock_stop_market_close_sell = server.mock("POST", "/fapi/v1/order")
+        let mock_stop_market_close_sell = server
+            .mock("POST", "/fapi/v1/order")
             .with_header("content-type", "application/json;charset=UTF-8")
-            .match_query(Matcher::Regex("closePosition=TRUE&recvWindow=1234&side=SELL&stopPrice=7.4&symbol=SRMUSDT&timestamp=\\d+&type=STOP_MARKET".into()))
+            // .match_query(Matcher::Regex("closePosition=TRUE&recvWindow=1234&side=SELL&stopPrice=7.4&symbol=SRMUSDT&timestamp=\\d+&type=STOP_MARKET".into()))
+            .match_query(Matcher::AllOf(vec![
+                Matcher::Regex(r"closePosition=TRUE".into()),
+                Matcher::UrlEncoded("recvWindow".into(), "1234".into()),
+                Matcher::UrlEncoded("side".into(), "SELL".into()),
+                Matcher::Regex(r"stopPrice=7.4".into()),
+                Matcher::UrlEncoded("symbol".into(), "SRMUSDT".into()),
+                Matcher::Regex(r"timestamp=\d+".into()),
+                Matcher::UrlEncoded("type".into(), "STOP_MARKET".into()),
+                Matcher::Regex(r"newClientOrderId=x-Cb7ytekJ[A-Za-z0-9]+".into()),
+            ]))
             .with_body_from_file("tests/mocks/futures/account/stop_market_close_position_sell.json")
             .create();
 
@@ -186,9 +208,20 @@ mod tests {
     #[test]
     fn custom_order() {
         let mut server = Server::new();
-        let mock_custom_order = server.mock("POST", "/fapi/v1/order")
+        let mock_custom_order = server
+            .mock("POST", "/fapi/v1/order")
             .with_header("content-type", "application/json;charset=UTF-8")
-            .match_query(Matcher::Regex("closePosition=TRUE&recvWindow=1234&side=SELL&stopPrice=7.4&symbol=SRMUSDT&timestamp=\\d+&type=STOP_MARKET".into()))
+            // .match_query(Matcher::Regex("newClientOrderId=myId&closePosition=TRUE&recvWindow=1234&side=SELL&stopPrice=7.4&symbol=SRMUSDT&timestamp=\\d+&type=STOP_MARKET".into()))
+            .match_query(Matcher::AllOf(vec![
+                Matcher::UrlEncoded("newClientOrderId".into(), "myId".into()),
+                Matcher::Regex(r"closePosition=(?i:true)".into()),
+                Matcher::UrlEncoded("recvWindow".into(), "1234".into()),
+                Matcher::UrlEncoded("side".into(), "SELL".into()),
+                Matcher::Regex(r"stopPrice=7(?:\.4(?:0+)?)?".into()),
+                Matcher::UrlEncoded("symbol".into(), "SRMUSDT".into()),
+                Matcher::Regex(r"timestamp=\d+".into()),
+                Matcher::UrlEncoded("type".into(), "STOP_MARKET".into()),
+            ]))
             .with_body_from_file("tests/mocks/futures/account/stop_market_close_position_sell.json")
             .create();
 
@@ -212,6 +245,7 @@ mod tests {
             callback_rate: None,
             working_type: None,
             price_protect: None,
+            new_client_order_id: Some("myId".into()),
         };
         let transaction: Transaction = account.custom_order(custom_order).unwrap();
 
