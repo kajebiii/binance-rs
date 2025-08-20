@@ -9,14 +9,26 @@ pub struct Config {
     pub recv_window: u64,
 }
 
+pub const SPOT_MAINNET: &str = "https://api.binance.com";
+pub const SPOT_TESTNET: &str = "https://testnet.binance.vision";
+
+pub const SPOT_WS_MAINNET: &str = "wss://stream.binance.com/ws";
+pub const SPOT_WS_TESTNET: &str = "wss://testnet.binance.vision/ws";
+
+pub const FUTURES_MAINNET: &str = "https://fapi.binance.com";
+pub const FUTURES_TESTNET: &str = "https://testnet.binancefuture.com";
+
+pub const FUTURES_WS_MAINNET: &str = "wss://fstream.binance.com/ws";
+pub const FUTURES_WS_TESTNET: &str = "wss://fstream.binancefuture.com/ws";
+
 impl Default for Config {
     fn default() -> Self {
         Self {
-            rest_api_endpoint: "https://api.binance.com".into(),
-            ws_endpoint: "wss://stream.binance.com/ws".into(),
+            rest_api_endpoint: SPOT_MAINNET.into(),
+            ws_endpoint: SPOT_WS_MAINNET.into(),
 
-            futures_rest_api_endpoint: "https://fapi.binance.com".into(),
-            futures_ws_endpoint: "wss://fstream.binance.com/ws".into(),
+            futures_rest_api_endpoint: FUTURES_MAINNET.into(),
+            futures_ws_endpoint: FUTURES_WS_MAINNET.into(),
 
             recv_window: 5000,
         }
@@ -26,10 +38,10 @@ impl Default for Config {
 impl Config {
     pub fn testnet() -> Self {
         Self::default()
-            .set_rest_api_endpoint("https://testnet.binance.vision")
-            .set_ws_endpoint("wss://testnet.binance.vision/ws")
-            .set_futures_rest_api_endpoint("https://testnet.binancefuture.com")
-            .set_futures_ws_endpoint("https://testnet.binancefuture.com/ws")
+            .set_rest_api_endpoint(SPOT_TESTNET)
+            .set_ws_endpoint(SPOT_WS_TESTNET)
+            .set_futures_rest_api_endpoint(FUTURES_TESTNET)
+            .set_futures_ws_endpoint(FUTURES_WS_TESTNET)
     }
 
     pub fn set_rest_api_endpoint<T: Into<String>>(mut self, rest_api_endpoint: T) -> Self {

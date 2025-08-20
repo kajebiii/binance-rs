@@ -5,6 +5,7 @@ use crate::client::Client;
 use crate::errors::Result;
 use crate::api::API;
 use crate::api::Spot;
+use crate::config::{SPOT_MAINNET, SPOT_TESTNET};
 
 #[derive(Clone)]
 pub struct General {
@@ -16,6 +17,18 @@ impl General {
     pub fn ping(&self) -> Result<String> {
         self.client.get::<Empty>(API::Spot(Spot::Ping), None)?;
         Ok("pong".into())
+    }
+
+    pub fn set_verbose(&mut self, verbose: bool) {
+        self.client.set_verbose(verbose);
+    }
+
+    pub fn set_testnet(&mut self, testnet: bool) {
+        if testnet {
+            self.client.set_host(SPOT_TESTNET.into());
+        } else {
+            self.client.set_host(SPOT_MAINNET.into());
+        }
     }
 
     // Check server time

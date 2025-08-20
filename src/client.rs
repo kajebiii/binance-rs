@@ -16,7 +16,6 @@ pub struct Client {
     host: String,
     inner_client: reqwest::blocking::Client,
     verbose: bool,
-    testnet: bool,
 }
 
 impl Client {
@@ -30,7 +29,6 @@ impl Client {
                 .build()
                 .unwrap(),
             verbose: false,
-            testnet: false,
         }
     }
 
@@ -38,13 +36,8 @@ impl Client {
         self.verbose = verbose;
     }
 
-    pub fn set_testnet(&mut self, testnet: bool) {
-        self.testnet = testnet;
-        if testnet {
-            self.host = "https://testnet.binance.vision".to_string();
-        } else {
-            self.host = "https://api.binance.com".to_string();
-        }
+    pub fn set_host(&mut self, host: String) {
+        self.host = host;
     }
 
     pub fn get_signed<T: DeserializeOwned>(
