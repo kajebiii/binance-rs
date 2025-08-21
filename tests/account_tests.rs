@@ -611,9 +611,22 @@ mod tests {
     #[test]
     fn stop_limit_buy_order() {
         let mut server = Server::new();
-        let mock_stop_limit_buy_order = server.mock("POST", "/api/v3/order")
+        let mock_stop_limit_buy_order = server
+            .mock("POST", "/api/v3/order")
             .with_header("content-type", "application/json;charset=UTF-8")
-            .match_query(Matcher::Regex("price=0.1&quantity=1&recvWindow=1234&side=BUY&stopPrice=0.09&symbol=LTCBTC&timeInForce=GTC&timestamp=\\d+&type=STOP_LOSS_LIMIT".into()))
+            // .match_query(Matcher::Regex("price=0.1&quantity=1&recvWindow=1234&side=BUY&stopPrice=0.09&symbol=LTCBTC&timeInForce=GTC&timestamp=\\d+&type=STOP_LOSS_LIMIT".into()))
+            .match_query(Matcher::AllOf(vec![
+                Matcher::Regex(r"price=0.1".into()),
+                Matcher::UrlEncoded("quantity".into(), "1".into()),
+                Matcher::UrlEncoded("recvWindow".into(), "1234".into()),
+                Matcher::UrlEncoded("side".into(), "BUY".into()),
+                Matcher::Regex(r"stopPrice=0.09".into()),
+                Matcher::UrlEncoded("symbol".into(), "LTCBTC".into()),
+                Matcher::UrlEncoded("timeInForce".into(), "GTC".into()),
+                Matcher::Regex(r"timestamp=\d+".into()),
+                Matcher::UrlEncoded("type".into(), "STOP_LOSS_LIMIT".into()),
+                Matcher::Regex(r"newClientOrderId=x-HNA2TXFJ[A-Za-z0-9]+".into()),
+            ]))
             .with_body_from_file("tests/mocks/account/stop_limit_buy.json")
             .create();
 

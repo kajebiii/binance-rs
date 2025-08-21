@@ -15,6 +15,7 @@ pub struct Client {
     secret_key: String,
     host: String,
     inner_client: reqwest::blocking::Client,
+    verbose: bool,
 }
 
 impl Client {
@@ -27,18 +28,29 @@ impl Client {
                 .pool_idle_timeout(None)
                 .build()
                 .unwrap(),
+            verbose: false,
         }
+    }
+
+    pub fn set_verbose(&mut self, verbose: bool) {
+        self.verbose = verbose;
+    }
+
+    pub fn set_host(&mut self, host: String) {
+        self.host = host;
     }
 
     pub fn get_signed<T: DeserializeOwned>(
         &self, endpoint: API, request: Option<String>,
     ) -> Result<T> {
         let url = self.sign_request(endpoint, request);
+        let headers = self.build_headers(true)?;
+        if self.verbose {
+            println!("Request URL: {}", url);
+            println!("Request Headers: {:?}", headers);
+        }
         let client = &self.inner_client;
-        let response = client
-            .get(url.as_str())
-            .headers(self.build_headers(true)?)
-            .send()?;
+        let response = client.get(url.as_str()).headers(headers).send()?;
 
         self.handler(response)
     }
@@ -46,10 +58,13 @@ impl Client {
     pub fn post_signed<T: DeserializeOwned>(&self, endpoint: API, request: String) -> Result<T> {
         let url = self.sign_request(endpoint, Some(request));
         let client = &self.inner_client;
-        let response = client
-            .post(url.as_str())
-            .headers(self.build_headers(true)?)
-            .send()?;
+
+        let headers = self.build_headers(true)?;
+        if self.verbose {
+            println!("Request URL: {}", url);
+            println!("Request Headers: {:?}", headers);
+        }
+        let response = client.post(url.as_str()).headers(headers).send()?;
 
         self.handler(response)
     }
@@ -58,11 +73,13 @@ impl Client {
         &self, endpoint: API, request: Option<String>,
     ) -> Result<T> {
         let url = self.sign_request(endpoint, request);
+        let headers = self.build_headers(true)?;
+        if self.verbose {
+            println!("Request URL: {}", url);
+            println!("Request Headers: {:?}", headers);
+        }
         let client = &self.inner_client;
-        let response = client
-            .delete(url.as_str())
-            .headers(self.build_headers(true)?)
-            .send()?;
+        let response = client.delete(url.as_str()).headers(headers).send()?;
 
         self.handler(response)
     }
@@ -76,6 +93,9 @@ impl Client {
         }
 
         let client = &self.inner_client;
+        if self.verbose {
+            println!("Request URL: {}", url);
+        }
         let response = client.get(url.as_str()).send()?;
 
         self.handler(response)
@@ -98,9 +118,16 @@ impl Client {
         let data: String = format!("listenKey={}", listen_key);
 
         let client = &self.inner_client;
+
+        let headers = self.build_headers(true)?;
+        if self.verbose {
+            println!("Request URL: {}", url);
+            println!("Request Headers: {:?}", headers);
+            println!("Request Body: {}", data);
+        }
         let response = client
             .put(url.as_str())
-            .headers(self.build_headers(false)?)
+            .headers(headers)
             .body(data)
             .send()?;
 
@@ -158,7 +185,19 @@ impl Client {
 
     fn handler<T: DeserializeOwned>(&self, response: Response) -> Result<T> {
         match response.status() {
-            StatusCode::OK => Ok(response.json::<T>()?),
+            StatusCode::OK => {
+                let headers = response.headers().clone();
+                let response_bytes = response.bytes()?;
+
+                if self.verbose {
+                    println!("Response Headers: {:?}", headers);
+                    let pretty =
+                        serde_json::from_slice::<serde_json::Value>(&response_bytes).unwrap();
+                    println!("Response: {}", pretty);
+                }
+                let json: T = serde_json::from_slice(&response_bytes)?;
+                Ok(json)
+            }
             StatusCode::INTERNAL_SERVER_ERROR => {
                 bail!("Internal Server Error");
             }

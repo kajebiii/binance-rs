@@ -47,11 +47,29 @@ fn get_timestamp(start: SystemTime) -> Result<u64> {
 }
 
 pub fn is_start_time_valid(start_time: &u64) -> bool {
-    let current_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+    let current_time = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
 
     if start_time > &current_time {
         false
     } else {
         true
     }
+}
+
+pub fn generate_uuid22() -> String {
+    use uuid::Uuid;
+    let uuid = Uuid::new_v4();
+    let uuid_str = uuid.to_string().replace('-', "");
+    uuid_str[..22].to_string()
+}
+
+pub fn uuid_spot() -> String {
+    format!("x-HNA2TXFJ{}", generate_uuid22())
+}
+
+pub fn uuid_futures() -> String {
+    format!("x-Cb7ytekJ{}", generate_uuid22())
 }

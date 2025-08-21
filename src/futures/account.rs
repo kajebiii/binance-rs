@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 use std::fmt::Display;
-use crate::util::build_signed_request;
+
+use crate::util::{build_signed_request, uuid_futures};
 use crate::errors::Result;
 use crate::client::Client;
 use crate::api::{API, Futures};
@@ -127,6 +128,7 @@ struct OrderRequest {
     pub callback_rate: Option<f64>,
     pub working_type: Option<WorkingType>,
     pub price_protect: Option<f64>,
+    pub new_client_order_id: Option<String>,
 }
 
 pub struct CustomOrderRequest {
@@ -144,6 +146,7 @@ pub struct CustomOrderRequest {
     pub callback_rate: Option<f64>,
     pub working_type: Option<WorkingType>,
     pub price_protect: Option<f64>,
+    pub new_client_order_id: Option<String>,
 }
 
 pub struct IncomeRequest {
@@ -223,8 +226,9 @@ impl FuturesAccount {
             callback_rate: None,
             working_type: None,
             price_protect: None,
+            new_client_order_id: None,
         };
-        let order = self.build_order(buy);
+        let order = self.build_order(buy, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client
             .post_signed(API::Futures(Futures::Order), request)
@@ -249,8 +253,9 @@ impl FuturesAccount {
             callback_rate: None,
             working_type: None,
             price_protect: None,
+            new_client_order_id: None,
         };
-        let order = self.build_order(sell);
+        let order = self.build_order(sell, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client
             .post_signed(API::Futures(Futures::Order), request)
@@ -277,8 +282,9 @@ impl FuturesAccount {
             callback_rate: None,
             working_type: None,
             price_protect: None,
+            new_client_order_id: None,
         };
-        let order = self.build_order(buy);
+        let order = self.build_order(buy, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client
             .post_signed(API::Futures(Futures::Order), request)
@@ -305,8 +311,9 @@ impl FuturesAccount {
             callback_rate: None,
             working_type: None,
             price_protect: None,
+            new_client_order_id: None,
         };
-        let order = self.build_order(sell);
+        let order = self.build_order(sell, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client
             .post_signed(API::Futures(Futures::Order), request)
@@ -361,8 +368,9 @@ impl FuturesAccount {
             callback_rate: None,
             working_type: None,
             price_protect: None,
+            new_client_order_id: None,
         };
-        let order = self.build_order(sell);
+        let order = self.build_order(sell, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client
             .post_signed(API::Futures(Futures::Order), request)
@@ -389,8 +397,9 @@ impl FuturesAccount {
             callback_rate: None,
             working_type: None,
             price_protect: None,
+            new_client_order_id: None,
         };
-        let order = self.build_order(sell);
+        let order = self.build_order(sell, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client
             .post_signed(API::Futures(Futures::Order), request)
@@ -413,8 +422,36 @@ impl FuturesAccount {
             callback_rate: order_request.callback_rate,
             working_type: order_request.working_type,
             price_protect: order_request.price_protect,
+            new_client_order_id: order_request.new_client_order_id,
         };
-        let order = self.build_order(order);
+        let order = self.build_order(order, None);
+        let request = build_signed_request(order, self.recv_window)?;
+        self.client
+            .post_signed(API::Futures(Futures::Order), request)
+    }
+
+    // Custom order for for professional traders
+    pub fn custom_order_with_params(
+        &self, order_request: CustomOrderRequest, request_params: BTreeMap<String, String>,
+    ) -> Result<Transaction> {
+        let order = OrderRequest {
+            symbol: order_request.symbol,
+            side: order_request.side,
+            position_side: order_request.position_side,
+            order_type: order_request.order_type,
+            time_in_force: order_request.time_in_force,
+            qty: order_request.qty,
+            reduce_only: order_request.reduce_only,
+            price: order_request.price,
+            stop_price: order_request.stop_price,
+            close_position: order_request.close_position,
+            activation_price: order_request.activation_price,
+            callback_rate: order_request.callback_rate,
+            working_type: order_request.working_type,
+            price_protect: order_request.price_protect,
+            new_client_order_id: order_request.new_client_order_id,
+        };
+        let order = self.build_order(order, Some(request_params));
         let request = build_signed_request(order, self.recv_window)?;
         self.client
             .post_signed(API::Futures(Futures::Order), request)
@@ -441,8 +478,9 @@ impl FuturesAccount {
                 callback_rate: order_request.callback_rate,
                 working_type: order_request.working_type,
                 price_protect: order_request.price_protect,
+                new_client_order_id: order_request.new_client_order_id,
             };
-            let _order = self.build_order(order);
+            let _order = self.build_order(order, None);
             // TODO : make a request string for batch orders api
             // let request = build_signed_request(order, self.recv_window)?;
         }
@@ -505,7 +543,9 @@ impl FuturesAccount {
         self.client
             .get_signed(API::Futures(Futures::UserTrades), Some(request))
     }
-    fn build_order(&self, order: OrderRequest) -> BTreeMap<String, String> {
+    fn build_order(
+        &self, order: OrderRequest, request_params: Option<BTreeMap<String, String>>,
+    ) -> BTreeMap<String, String> {
         let mut parameters = BTreeMap::new();
         parameters.insert("symbol".into(), order.symbol);
         parameters.insert("side".into(), order.side.to_string());
@@ -549,6 +589,18 @@ impl FuturesAccount {
                 "priceProtect".into(),
                 price_protect.to_string().to_uppercase(),
             );
+        }
+        if let Some(new_client_order_id) = order.new_client_order_id {
+            parameters.insert("newClientOrderId".into(), new_client_order_id);
+        } else {
+            let uuid = uuid_futures();
+            parameters.insert("newClientOrderId".into(), uuid);
+        }
+
+        if let Some(params) = request_params {
+            for (key, value) in params {
+                parameters.insert(key, value.to_string());
+            }
         }
 
         parameters
