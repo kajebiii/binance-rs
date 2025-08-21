@@ -1,4 +1,5 @@
 use error_chain::bail;
+use serde_json::Value;
 
 use crate::util::{build_signed_request, is_start_time_valid, uuid_spot};
 use crate::model::{
@@ -6,7 +7,7 @@ use crate::model::{
 };
 use crate::client::Client;
 use crate::errors::Result;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 use std::fmt::Display;
 use crate::api::API;
 use crate::api::Spot;
@@ -225,7 +226,7 @@ impl Account {
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
         };
-        let order = self.build_order(buy);
+        let order = self.build_order(buy, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client.post_signed(API::Spot(Spot::Order), request)
     }
@@ -248,7 +249,7 @@ impl Account {
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
         };
-        let order = self.build_order(buy);
+        let order = self.build_order(buy, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client
             .post_signed::<Empty>(API::Spot(Spot::OrderTest), request)
@@ -271,7 +272,7 @@ impl Account {
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
         };
-        let order = self.build_order(sell);
+        let order = self.build_order(sell, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client.post_signed(API::Spot(Spot::Order), request)
     }
@@ -294,7 +295,7 @@ impl Account {
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
         };
-        let order = self.build_order(sell);
+        let order = self.build_order(sell, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client
             .post_signed::<Empty>(API::Spot(Spot::OrderTest), request)
@@ -317,7 +318,7 @@ impl Account {
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
         };
-        let order = self.build_order(buy);
+        let order = self.build_order(buy, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client.post_signed(API::Spot(Spot::Order), request)
     }
@@ -340,7 +341,7 @@ impl Account {
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
         };
-        let order = self.build_order(buy);
+        let order = self.build_order(buy, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client
             .post_signed::<Empty>(API::Spot(Spot::OrderTest), request)
@@ -411,7 +412,7 @@ impl Account {
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
         };
-        let order = self.build_order(sell);
+        let order = self.build_order(sell, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client.post_signed(API::Spot(Spot::Order), request)
     }
@@ -434,7 +435,7 @@ impl Account {
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
         };
-        let order = self.build_order(sell);
+        let order = self.build_order(sell, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client
             .post_signed::<Empty>(API::Spot(Spot::OrderTest), request)
@@ -520,7 +521,7 @@ impl Account {
             time_in_force,
             new_client_order_id: None,
         };
-        let order = self.build_order(sell);
+        let order = self.build_order(sell, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client.post_signed(API::Spot(Spot::Order), request)
     }
@@ -558,7 +559,7 @@ impl Account {
             time_in_force,
             new_client_order_id: None,
         };
-        let order = self.build_order(sell);
+        let order = self.build_order(sell, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client
             .post_signed::<Empty>(API::Spot(Spot::OrderTest), request)
@@ -596,7 +597,7 @@ impl Account {
             time_in_force,
             new_client_order_id: None,
         };
-        let order = self.build_order(sell);
+        let order = self.build_order(sell, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client.post_signed(API::Spot(Spot::Order), request)
     }
@@ -634,7 +635,7 @@ impl Account {
             time_in_force,
             new_client_order_id: None,
         };
-        let order = self.build_order(sell);
+        let order = self.build_order(sell, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client
             .post_signed::<Empty>(API::Spot(Spot::OrderTest), request)
@@ -661,7 +662,33 @@ impl Account {
             time_in_force,
             new_client_order_id,
         };
-        let order = self.build_order(sell);
+        let order = self.build_order(sell, None);
+        let request = build_signed_request(order, self.recv_window)?;
+        self.client.post_signed(API::Spot(Spot::Order), request)
+    }
+
+    /// Place a custom order
+    #[allow(clippy::too_many_arguments)]
+    pub fn custom_order_with_params<S, F>(
+        &self, symbol: S, qty: F, price: f64, stop_price: Option<f64>, order_side: OrderSide,
+        order_type: OrderType, time_in_force: TimeInForce, new_client_order_id: Option<String>,
+        request_params: HashMap<String, Value>,
+    ) -> Result<Transaction>
+    where
+        S: Into<String>,
+        F: Into<f64>,
+    {
+        let sell = OrderRequest {
+            symbol: symbol.into(),
+            qty: qty.into(),
+            price,
+            stop_price,
+            order_side,
+            order_type,
+            time_in_force,
+            new_client_order_id,
+        };
+        let order = self.build_order(sell, Some(request_params));
         let request = build_signed_request(order, self.recv_window)?;
         self.client.post_signed(API::Spot(Spot::Order), request)
     }
@@ -688,7 +715,7 @@ impl Account {
             time_in_force,
             new_client_order_id,
         };
-        let order = self.build_order(sell);
+        let order = self.build_order(sell, None);
         let request = build_signed_request(order, self.recv_window)?;
         self.client
             .post_signed::<Empty>(API::Spot(Spot::OrderTest), request)
@@ -799,7 +826,9 @@ impl Account {
         Ok(trades)
     }
 
-    fn build_order(&self, order: OrderRequest) -> BTreeMap<String, String> {
+    fn build_order(
+        &self, order: OrderRequest, request_params: Option<HashMap<String, Value>>,
+    ) -> BTreeMap<String, String> {
         let mut order_parameters: BTreeMap<String, String> = BTreeMap::new();
 
         order_parameters.insert("symbol".into(), order.symbol);
@@ -821,6 +850,12 @@ impl Account {
         } else {
             let uuid = uuid_spot();
             order_parameters.insert("newClientOrderId".into(), uuid);
+        }
+
+        if let Some(params) = request_params {
+            for (key, value) in params {
+                order_parameters.insert(key, value.to_string());
+            }
         }
 
         order_parameters
