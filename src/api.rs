@@ -1,6 +1,6 @@
 use crate::account::Account;
 use crate::client::Client;
-use crate::config::Config;
+use crate::config::{Config, SPOT_MAINNET, SPOT_TESTNET};
 use crate::futures::account::FuturesAccount;
 use crate::futures::general::FuturesGeneral;
 use crate::futures::market::FuturesMarket;
@@ -179,6 +179,8 @@ pub trait Binance {
     fn new_with_config(
         api_key: Option<String>, secret_key: Option<String>, config: &Config,
     ) -> Self;
+    fn set_verbose(&mut self, verbose: bool);
+    fn set_testnet(&mut self, testnet: bool);
 }
 
 impl Binance for General {
@@ -191,6 +193,18 @@ impl Binance for General {
     ) -> General {
         General {
             client: Client::new(api_key, secret_key, config.rest_api_endpoint.clone()),
+        }
+    }
+
+    fn set_verbose(&mut self, verbose: bool) {
+        self.client.set_verbose(verbose);
+    }
+
+    fn set_testnet(&mut self, testnet: bool) {
+        if testnet {
+            self.client.set_host(SPOT_TESTNET.into());
+        } else {
+            self.client.set_host(SPOT_MAINNET.into());
         }
     }
 }
@@ -208,6 +222,18 @@ impl Binance for Account {
             recv_window: config.recv_window,
         }
     }
+
+    fn set_verbose(&mut self, verbose: bool) {
+        self.client.set_verbose(verbose);
+    }
+
+    fn set_testnet(&mut self, testnet: bool) {
+        if testnet {
+            self.client.set_host(SPOT_TESTNET.into());
+        } else {
+            self.client.set_host(SPOT_MAINNET.into());
+        }
+    }
 }
 
 impl Binance for Savings {
@@ -221,6 +247,18 @@ impl Binance for Savings {
         Self {
             client: Client::new(api_key, secret_key, config.rest_api_endpoint.clone()),
             recv_window: config.recv_window,
+        }
+    }
+
+    fn set_verbose(&mut self, verbose: bool) {
+        self.client.set_verbose(verbose);
+    }
+
+    fn set_testnet(&mut self, testnet: bool) {
+        if testnet {
+            self.client.set_host(SPOT_TESTNET.into());
+        } else {
+            self.client.set_host(SPOT_MAINNET.into());
         }
     }
 }
@@ -238,6 +276,18 @@ impl Binance for Market {
             recv_window: config.recv_window,
         }
     }
+
+    fn set_verbose(&mut self, verbose: bool) {
+        self.client.set_verbose(verbose);
+    }
+
+    fn set_testnet(&mut self, testnet: bool) {
+        if testnet {
+            self.client.set_host(SPOT_TESTNET.into());
+        } else {
+            self.client.set_host(SPOT_MAINNET.into());
+        }
+    }
 }
 
 impl Binance for UserStream {
@@ -251,6 +301,18 @@ impl Binance for UserStream {
         UserStream {
             client: Client::new(api_key, secret_key, config.rest_api_endpoint.clone()),
             recv_window: config.recv_window,
+        }
+    }
+
+    fn set_verbose(&mut self, verbose: bool) {
+        self.client.set_verbose(verbose);
+    }
+
+    fn set_testnet(&mut self, testnet: bool) {
+        if testnet {
+            self.client.set_host(SPOT_TESTNET.into());
+        } else {
+            self.client.set_host(SPOT_MAINNET.into());
         }
     }
 }
@@ -275,6 +337,18 @@ impl Binance for FuturesGeneral {
             ),
         }
     }
+
+    fn set_verbose(&mut self, verbose: bool) {
+        self.client.set_verbose(verbose);
+    }
+
+    fn set_testnet(&mut self, testnet: bool) {
+        if testnet {
+            self.client.set_host(SPOT_TESTNET.into());
+        } else {
+            self.client.set_host(SPOT_MAINNET.into());
+        }
+    }
 }
 
 impl Binance for FuturesMarket {
@@ -292,6 +366,18 @@ impl Binance for FuturesMarket {
                 config.futures_rest_api_endpoint.clone(),
             ),
             recv_window: config.recv_window,
+        }
+    }
+
+    fn set_verbose(&mut self, verbose: bool) {
+        self.client.set_verbose(verbose);
+    }
+
+    fn set_testnet(&mut self, testnet: bool) {
+        if testnet {
+            self.client.set_host(SPOT_TESTNET.into());
+        } else {
+            self.client.set_host(SPOT_MAINNET.into());
         }
     }
 }
@@ -313,6 +399,18 @@ impl Binance for FuturesAccount {
             recv_window: config.recv_window,
         }
     }
+
+    fn set_verbose(&mut self, verbose: bool) {
+        self.client.set_verbose(verbose);
+    }
+
+    fn set_testnet(&mut self, testnet: bool) {
+        if testnet {
+            self.client.set_host(SPOT_TESTNET.into());
+        } else {
+            self.client.set_host(SPOT_MAINNET.into());
+        }
+    }
 }
 
 impl Binance for FuturesUserStream {
@@ -330,6 +428,18 @@ impl Binance for FuturesUserStream {
                 config.futures_rest_api_endpoint.clone(),
             ),
             recv_window: config.recv_window,
+        }
+    }
+
+    fn set_verbose(&mut self, verbose: bool) {
+        self.client.set_verbose(verbose);
+    }
+
+    fn set_testnet(&mut self, testnet: bool) {
+        if testnet {
+            self.client.set_host(SPOT_TESTNET.into());
+        } else {
+            self.client.set_host(SPOT_MAINNET.into());
         }
     }
 }

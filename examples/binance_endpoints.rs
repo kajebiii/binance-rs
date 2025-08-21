@@ -22,115 +22,14 @@ fn main() {
     //savings();
 }
 
+const apiKey: &str = "X4BHNSimXOK6RKs2FcKqExquJtHjMxz5hWqF0BBeVnfa5bKFMk7X0wtkfEz0cPrJ";
+const secret: &str = "x8gLihunpNq0d46F2q0TWJmeCDahX5LMXSlv3lSFNbMI3rujSOpTDKdhbcmPSf2i";
+
 fn general(use_testnet: bool) {
-    let general: General = if use_testnet {
-        let config = Config::default().set_rest_api_endpoint("https://testnet.binance.vision");
-        Binance::new_with_config(None, None, &config)
-    } else {
-        Binance::new(None, None)
-    };
+    let mut client: Account = Binance::new(Some(apiKey.into()), Some(secret.into()));
+    client.set_testnet(true);
 
-    let ping = general.ping();
-    match ping {
-        Ok(answer) => println!("{:?}", answer),
-        Err(err) => {
-            match err.0 {
-                BinanceLibErrorKind::BinanceError(response) => match response.code {
-                    -1000_i16 => println!("An unknown error occured while processing the request"),
-                    _ => println!("Non-catched code {}: {}", response.code, response.msg),
-                },
-                BinanceLibErrorKind::Msg(msg) => println!("Binancelib error msg: {}", msg),
-                _ => println!("Other errors: {}.", err.0),
-            };
-        }
-    }
-
-    let result = general.get_server_time();
-    match result {
-        Ok(answer) => println!("Server Time: {}", answer.server_time),
-        Err(e) => println!("Error: {}", e),
-    }
-
-    let result = general.exchange_info();
-    match result {
-        Ok(answer) => println!("Exchange information: {:?}", answer),
-        Err(e) => println!("Error: {}", e),
-    }
-
-    let result = general.get_symbol_info("ethbtc");
-    match result {
-        Ok(answer) => println!("Symbol information: {:?}", answer),
-        Err(e) => println!("Error: {}", e),
-    }
-}
-
-#[allow(dead_code)]
-fn account() {
-    let api_key = Some("YOUR_API_KEY".into());
-    let secret_key = Some("YOUR_SECRET_KEY".into());
-
-    let account: Account = Binance::new(api_key, secret_key);
-
-    match account.get_account() {
-        Ok(answer) => println!("{:?}", answer.balances),
-        Err(e) => println!("Error: {}", e),
-    }
-
-    match account.get_open_orders("WTCETH") {
-        Ok(answer) => println!("{:?}", answer),
-        Err(e) => println!("Error: {}", e),
-    }
-
-    match account.limit_buy("WTCETH", 10, 0.014000) {
-        Ok(answer) => println!("{:?}", answer),
-        Err(e) => println!("Error: {}", e),
-    }
-
-    match account.market_buy("WTCETH", 5) {
-        Ok(answer) => println!("{:?}", answer),
-        Err(e) => println!("Error: {}", e),
-    }
-
-    match account.market_buy_using_quote_quantity("WTCETH", 5) {
-        Ok(answer) => println!("{:?}", answer),
-        Err(e) => println!("Error: {}", e),
-    }
-
-    match account.limit_sell("WTCETH", 10, 0.035000) {
-        Ok(answer) => println!("{:?}", answer),
-        Err(e) => println!("Error: {}", e),
-    }
-
-    match account.market_sell("WTCETH", 5) {
-        Ok(answer) => println!("{:?}", answer),
-        Err(e) => println!("Error: {}", e),
-    }
-
-    match account.market_sell_using_quote_quantity("WTCETH", 5) {
-        Ok(answer) => println!("{:?}", answer),
-        Err(e) => println!("Error: {}", e),
-    }
-
-    let order_id = 1_957_528;
-    match account.order_status("WTCETH", order_id) {
-        Ok(answer) => println!("{:?}", answer),
-        Err(e) => println!("Error: {}", e),
-    }
-
-    match account.cancel_order("WTCETH", order_id) {
-        Ok(answer) => println!("{:?}", answer),
-        Err(e) => println!("Error: {}", e),
-    }
-
-    match account.get_balance("KNC") {
-        Ok(answer) => println!("{:?}", answer),
-        Err(e) => println!("Error: {}", e),
-    }
-
-    match account.trade_history("WTCETH") {
-        Ok(answer) => println!("{:?}", answer),
-        Err(e) => println!("Error: {}", e),
-    }
+    let order = client
 }
 
 #[allow(dead_code)]
