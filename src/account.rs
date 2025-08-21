@@ -1,5 +1,4 @@
 use error_chain::bail;
-use serde_json::Value;
 
 use crate::util::{build_signed_request, is_start_time_valid, uuid_spot};
 use crate::model::{
@@ -7,7 +6,7 @@ use crate::model::{
 };
 use crate::client::Client;
 use crate::errors::Result;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use std::fmt::Display;
 use crate::api::API;
 use crate::api::Spot;
@@ -672,7 +671,7 @@ impl Account {
     pub fn custom_order_with_params<S, F>(
         &self, symbol: S, qty: F, price: f64, stop_price: Option<f64>, order_side: OrderSide,
         order_type: OrderType, time_in_force: TimeInForce, new_client_order_id: Option<String>,
-        request_params: HashMap<String, Value>,
+        request_params: BTreeMap<String, String>,
     ) -> Result<Transaction>
     where
         S: Into<String>,
@@ -827,7 +826,7 @@ impl Account {
     }
 
     fn build_order(
-        &self, order: OrderRequest, request_params: Option<HashMap<String, Value>>,
+        &self, order: OrderRequest, request_params: Option<BTreeMap<String, String>>,
     ) -> BTreeMap<String, String> {
         let mut order_parameters: BTreeMap<String, String> = BTreeMap::new();
 

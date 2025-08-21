@@ -1,6 +1,5 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use std::fmt::Display;
-use serde_json::Value;
 
 use crate::util::{build_signed_request, uuid_futures};
 use crate::errors::Result;
@@ -433,7 +432,7 @@ impl FuturesAccount {
 
     // Custom order for for professional traders
     pub fn custom_order_with_params(
-        &self, order_request: CustomOrderRequest, request_params: HashMap<String, Value>,
+        &self, order_request: CustomOrderRequest, request_params: BTreeMap<String, String>,
     ) -> Result<Transaction> {
         let order = OrderRequest {
             symbol: order_request.symbol,
@@ -545,7 +544,7 @@ impl FuturesAccount {
             .get_signed(API::Futures(Futures::UserTrades), Some(request))
     }
     fn build_order(
-        &self, order: OrderRequest, request_params: Option<HashMap<String, Value>>,
+        &self, order: OrderRequest, request_params: Option<BTreeMap<String, String>>,
     ) -> BTreeMap<String, String> {
         let mut parameters = BTreeMap::new();
         parameters.insert("symbol".into(), order.symbol);
