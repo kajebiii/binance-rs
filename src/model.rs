@@ -62,6 +62,9 @@ pub enum Filters {
         multiplier_down: String,
         avg_price_mins: Option<f64>,
     },
+    #[serde(rename = "POSITION_RISK_CONTROL")]
+    #[serde(rename_all = "camelCase")]
+    PositionRiskControl { position_control_side: String },
     #[serde(rename = "PERCENT_PRICE_BY_SIDE")]
     #[serde(rename_all = "camelCase")]
     PercentPriceBySide {
