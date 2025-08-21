@@ -1,6 +1,6 @@
 use crate::account::Account;
 use crate::client::Client;
-use crate::config::{Config, SPOT_MAINNET, SPOT_TESTNET};
+use crate::config::{Config, FUTURES_MAINNET, FUTURES_TESTNET, SPOT_MAINNET, SPOT_TESTNET};
 use crate::futures::account::FuturesAccount;
 use crate::futures::general::FuturesGeneral;
 use crate::futures::market::FuturesMarket;
@@ -344,9 +344,9 @@ impl Binance for FuturesGeneral {
 
     fn set_testnet(&mut self, testnet: bool) {
         if testnet {
-            self.client.set_host(SPOT_TESTNET.into());
+            self.client.set_host(FUTURES_TESTNET.into());
         } else {
-            self.client.set_host(SPOT_MAINNET.into());
+            self.client.set_host(FUTURES_MAINNET.into());
         }
     }
 }
@@ -375,9 +375,9 @@ impl Binance for FuturesMarket {
 
     fn set_testnet(&mut self, testnet: bool) {
         if testnet {
-            self.client.set_host(SPOT_TESTNET.into());
+            self.client.set_host(FUTURES_TESTNET.into());
         } else {
-            self.client.set_host(SPOT_MAINNET.into());
+            self.client.set_host(FUTURES_MAINNET.into());
         }
     }
 }
@@ -406,9 +406,9 @@ impl Binance for FuturesAccount {
 
     fn set_testnet(&mut self, testnet: bool) {
         if testnet {
-            self.client.set_host(SPOT_TESTNET.into());
+            self.client.set_host(FUTURES_TESTNET.into());
         } else {
-            self.client.set_host(SPOT_MAINNET.into());
+            self.client.set_host(FUTURES_MAINNET.into());
         }
     }
 }
@@ -437,9 +437,9 @@ impl Binance for FuturesUserStream {
 
     fn set_testnet(&mut self, testnet: bool) {
         if testnet {
-            self.client.set_host(SPOT_TESTNET.into());
+            self.client.set_host(FUTURES_TESTNET.into());
         } else {
-            self.client.set_host(SPOT_MAINNET.into());
+            self.client.set_host(FUTURES_MAINNET.into());
         }
     }
 }
