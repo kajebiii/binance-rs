@@ -214,7 +214,7 @@ mod tests {
             // .match_query(Matcher::Regex("newClientOrderId=myId&closePosition=TRUE&recvWindow=1234&side=SELL&stopPrice=7.4&symbol=SRMUSDT&timestamp=\\d+&type=STOP_MARKET".into()))
             .match_query(Matcher::AllOf(vec![
                 Matcher::UrlEncoded("newClientOrderId".into(), "myId".into()),
-                Matcher::Regex(r"closePosition=(?i:true)".into()),
+                Matcher::UrlEncoded("closePosition".into(), "TRUE".into()),
                 Matcher::UrlEncoded("recvWindow".into(), "1234".into()),
                 Matcher::UrlEncoded("side".into(), "SELL".into()),
                 Matcher::UrlEncoded("stopPrice".into(), "7.4".into()),
