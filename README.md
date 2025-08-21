@@ -14,18 +14,13 @@ Unofficial Rust Library for the [Binance API](https://github.com/binance/binance
 
   <https://t.me/binance_api_english>
 
-## Risk Warning
-
-It is a personal project, use at your own risk. I will not be responsible for your investment losses.
-Cryptocurrency investment is subject to high market risk.
-
 ## Usage
 
 Add this to your Cargo.toml
 
 ```toml
 [dependencies]
-binance = { git = "https://github.com/wisespace-io/binance-rs.git" }
+binance = { git = "https://github.com/ccxt/binance-rs.git" }
 ```
 
 ## Rust >= 1.56.1
