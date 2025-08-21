@@ -651,19 +651,17 @@ impl Account {
         S: Into<String>,
         F: Into<f64>,
     {
-        let sell = OrderRequest {
-            symbol: symbol.into(),
-            qty: qty.into(),
+        self.custom_order_with_params(
+            symbol,
+            qty,
             price,
             stop_price,
             order_side,
             order_type,
             time_in_force,
             new_client_order_id,
-        };
-        let order = self.build_order(sell, None);
-        let request = build_signed_request(order, self.recv_window)?;
-        self.client.post_signed(API::Spot(Spot::Order), request)
+            BTreeMap::new(),
+        )
     }
 
     /// Place a custom order

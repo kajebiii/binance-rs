@@ -407,27 +407,7 @@ impl FuturesAccount {
 
     // Custom order for for professional traders
     pub fn custom_order(&self, order_request: CustomOrderRequest) -> Result<Transaction> {
-        let order = OrderRequest {
-            symbol: order_request.symbol,
-            side: order_request.side,
-            position_side: order_request.position_side,
-            order_type: order_request.order_type,
-            time_in_force: order_request.time_in_force,
-            qty: order_request.qty,
-            reduce_only: order_request.reduce_only,
-            price: order_request.price,
-            stop_price: order_request.stop_price,
-            close_position: order_request.close_position,
-            activation_price: order_request.activation_price,
-            callback_rate: order_request.callback_rate,
-            working_type: order_request.working_type,
-            price_protect: order_request.price_protect,
-            new_client_order_id: order_request.new_client_order_id,
-        };
-        let order = self.build_order(order, None);
-        let request = build_signed_request(order, self.recv_window)?;
-        self.client
-            .post_signed(API::Futures(Futures::Order), request)
+        self.custom_order_with_params(order_request, BTreeMap::new())
     }
 
     // Custom order for for professional traders
@@ -458,8 +438,9 @@ impl FuturesAccount {
     }
 
     // Custom order for for professional traders
-    pub fn custom_batch_orders(
+    pub fn custom_batch_orders_with_params(
         &self, _order_count: u64, order_requests: Vec<CustomOrderRequest>,
+        request_params: BTreeMap<String, String>,
     ) -> Result<Transaction> {
         let request = String::from("");
         for order_request in order_requests {
@@ -480,12 +461,19 @@ impl FuturesAccount {
                 price_protect: order_request.price_protect,
                 new_client_order_id: order_request.new_client_order_id,
             };
-            let _order = self.build_order(order, None);
+            let _order = self.build_order(order, Some(request_params.clone()));
             // TODO : make a request string for batch orders api
             // let request = build_signed_request(order, self.recv_window)?;
         }
         self.client
             .post_signed(API::Futures(Futures::Order), request)
+    }
+
+    // Custom order for for professional traders
+    pub fn custom_batch_orders(
+        &self, _order_count: u64, order_requests: Vec<CustomOrderRequest>,
+    ) -> Result<Transaction> {
+        self.custom_batch_orders_with_params(_order_count, order_requests, BTreeMap::new())
     }
 
     pub fn get_all_orders<S, F, N>(
