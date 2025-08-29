@@ -109,6 +109,12 @@ pub enum Filters {
     #[serde(rename = "MAX_NUM_ICEBERG_ORDERS")]
     #[serde(rename_all = "camelCase")]
     MaxNumIcebergOrders { max_num_iceberg_orders: u16 },
+    #[serde(rename = "MAX_NUM_ORDER_AMENDS")]
+    #[serde(rename_all = "camelCase")]
+    MaxNumOrderAmends { max_num_order_amends: u16 },
+    #[serde(rename = "MAX_NUM_ORDER_LISTS")]
+    #[serde(rename_all = "camelCase")]
+    MaxNumOrderLists { max_num_order_lists: u16 },
     #[serde(rename = "MAX_POSITION")]
     #[serde(rename_all = "camelCase")]
     MaxPosition { max_position: String },
